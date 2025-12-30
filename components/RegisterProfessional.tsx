@@ -38,23 +38,39 @@ const RegisterProfessional: React.FC<Props> = ({ onNavigate }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validar tipo de arquivo
+    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      alert("Por favor, envie um arquivo PDF, Word ou imagem válido.");
+      return;
+    }
+
     setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const base64String = (reader.result as string).split(',')[1];
-      const result = await parseResume(base64String, file.type);
-      
-      if (result) {
-        setFormData(prev => ({
-          ...prev,
-          fullName: result.fullName || prev.fullName,
-          email: result.email || prev.email,
-          mainSkill: result.mainSkill || prev.mainSkill
-        }));
-        if (result.experiences) setExperiences(result.experiences);
-        if (result.education) setEducation(result.education);
+      try {
+        const base64String = (reader.result as string).split(',')[1];
+        const result = await parseResume(base64String, file.type);
+        
+        if (result) {
+          setFormData(prev => ({
+            ...prev,
+            fullName: result.fullName || prev.fullName,
+            email: result.email || prev.email,
+            mainSkill: result.mainSkill || prev.mainSkill
+          }));
+          if (result.experiences && Array.isArray(result.experiences)) setExperiences(result.experiences);
+          if (result.education && Array.isArray(result.education)) setEducation(result.education);
+          alert("Currículo processado com sucesso! Revise os dados abaixo.");
+        } else {
+          alert("Não foi possível processar seu currículo. Preencha os dados manualmente.");
+        }
+      } catch (error: any) {
+        console.error("Erro ao processar currículo:", error);
+        alert("Erro ao processar currículo: " + (error.message || "tente novamente"));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     reader.readAsDataURL(file);
   };

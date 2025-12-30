@@ -71,16 +71,23 @@ export const simulateMatch = async (jobData: any, candidateData: any): Promise<M
 export const parseResume = async (base64Data: string, mimeType: string) => {
   try {
     // Access API key directly from process.env as per guidelines
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
+    if (!apiKey) {
+      throw new Error("API key do Gemini não configurada");
+    }
+    
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: {
-        parts: [
-          { inlineData: { data: base64Data, mimeType: mimeType } },
-          { text: "Extraia nome, e-mail, principal competência, experiências, formação, CERTIFICAÇÕES e PROJETOS PESSOAIS/PORTFÓLIO." }
-        ]
-      },
-      config: {
+      model: "gemini-2.0-flash",
+      contents: [
+        {
+          parts: [
+            { inlineData: { data: base64Data, mimeType } },
+            { text: "Extraia nome, e-mail, principal competência, experiências, formação, CERTIFICAÇÕES e PROJETOS PESSOAIS/PORTFÓLIO em formato JSON." }
+          ]
+        }
+      ],
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -112,13 +119,19 @@ export const parseResume = async (base64Data: string, mimeType: string) => {
                 }
               }
             }
-          }
+          },
+          required: ["fullName", "email", "mainSkill"]
         }
       }
     });
-    return JSON.parse(response.text || "{}");
+    
+    if (!response.text) {
+      throw new Error("Nenhuma resposta da IA");
+    }
+    
+    return JSON.parse(response.text);
   } catch (error) {
     console.error("Erro no parse de currículo:", error);
-    return null;
+    throw error;
   }
 };
