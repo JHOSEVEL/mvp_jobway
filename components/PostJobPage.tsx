@@ -147,6 +147,60 @@ const PostJobPage: React.FC<Props> = ({ onNavigate, profile }) => {
     }
   };
 
+  const publishJobDirect = async () => {
+    if (!profile) {
+      alert("Erro: Sessão do usuário não encontrada. Por favor, faça login novamente.");
+      onNavigate('login');
+      return;
+    }
+
+    if (!formData.jobRole || formData.userInput.length < 10) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('jobs_database').insert({
+        company_id: profile.id,
+        title: formData.jobRole,
+        description: formData.userInput,
+        salary: formData.salary.trim() || 'A combinar',
+        city: formData.city,
+        cep: formData.cep.trim() || null,
+        job_type: formData.type,
+        status: 'Ativa',
+        requirements: [formData.experience || 'Não especificado'],
+        soft_skills: formData.benefits ? formData.benefits.split(',').map(b => b.trim()) : ['Comunicação', 'Trabalho em equipe']
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      alert("Vaga publicada com sucesso! 🎉");
+      setStep(1);
+      setFormData({
+        city: profile?.city || 'Florianópolis',
+        cep: '',
+        type: 'Presencial',
+        jobRole: '',
+        salary: '',
+        userInput: '',
+        benefits: '',
+        experience: ''
+      });
+      setGeneratedData(null);
+      setEditedData(null);
+      onNavigate('dashboard-company');
+    } catch (err: any) {
+      console.error("Erro ao publicar vaga:", err);
+      alert(`Erro ao publicar: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handlePublish = async () => {
     if (!profile) {
       alert("Erro: Sessão do usuário não encontrada. Por favor, faça login novamente.");
@@ -383,6 +437,20 @@ const PostJobPage: React.FC<Props> = ({ onNavigate, profile }) => {
                   ← Voltar
                 </button>
                 <button 
+                  onClick={publishJobDirect}
+                  disabled={isSubmitting || !formData.jobRole || formData.userInput.length < 10}
+                  className="px-8 py-4 bg-slate-700 text-white rounded-2xl font-bold text-base hover:bg-slate-600 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Publicando...
+                    </>
+                  ) : (
+                    <>📤 Publicar Agora</>
+                  )}
+                </button>
+                <button 
                   onClick={generateJobDetails}
                   disabled={loadingIA || !formData.jobRole || formData.userInput.length < 10}
                   className="px-10 py-4 bg-brand-green text-slate-900 rounded-2xl font-bold text-lg hover:bg-brand-greenDark transition-all active:scale-95 flex items-center gap-3 disabled:opacity-50 disabled:grayscale"
@@ -393,7 +461,7 @@ const PostJobPage: React.FC<Props> = ({ onNavigate, profile }) => {
                       Gerando...
                     </>
                   ) : (
-                    <>✨ Gerar Anúncio com IA</>
+                    <>✨ Gerar com IA</>
                   )}
                 </button>
               </div>
