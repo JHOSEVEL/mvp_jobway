@@ -4,8 +4,12 @@ import { MatchResult } from "../types";
 
 export const simulateMatch = async (jobData: any, candidateData: any): Promise<MatchResult | null> => {
   try {
-    // Access API key directly from process.env as per guidelines
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
+    if (!apiKey) {
+      console.error("API key do Gemini não configurada. Verifique seu arquivo .env");
+      throw new Error("API key do Gemini não configurada. Configure VITE_GEMINI_API_KEY no arquivo .env");
+    }
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Você é um Recrutador Técnico Sênior especializado no mercado de Santa Catarina (SC).
@@ -70,10 +74,10 @@ export const simulateMatch = async (jobData: any, candidateData: any): Promise<M
 
 export const parseResume = async (base64Data: string, mimeType: string) => {
   try {
-    // Access API key directly from process.env as per guidelines
-    const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
     if (!apiKey) {
-      throw new Error("API key do Gemini não configurada");
+      console.error("API key do Gemini não configurada. Verifique seu arquivo .env");
+      throw new Error("API key do Gemini não configurada. Configure VITE_GEMINI_API_KEY no arquivo .env");
     }
     
     const ai = new GoogleGenAI({ apiKey });
