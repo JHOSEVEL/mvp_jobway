@@ -31,10 +31,10 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div>
             <h4 className="font-black text-white uppercase tracking-widest text-xs mb-10">Santa Catarina</h4>
             <ul className="space-y-6 text-slate-400 font-bold text-sm">
-              <li><button onClick={() => onNavigate('jobs')} className="hover:text-brand-green transition-colors">Vagas em Florianópolis</button></li>
-              <li><button onClick={() => onNavigate('jobs')} className="hover:text-brand-green transition-colors">Vagas em Joinville</button></li>
-              <li><button onClick={() => onNavigate('jobs')} className="hover:text-brand-green transition-colors">Vagas em Blumenau</button></li>
-              <li><button onClick={() => onNavigate('jobs')} className="hover:text-brand-green transition-colors">Vagas em Balneário Camboriú</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-brand-green transition-colors">Início</button></li>
+              <li><button onClick={() => onNavigate('about')} className="hover:text-brand-green transition-colors">Sobre Nós</button></li>
+              <li><button onClick={() => onNavigate('lead')} className="hover:text-brand-green transition-colors">Quero Demo</button></li>
+              <li><button className="hover:text-brand-green transition-colors">Suporte</button></li>
             </ul>
           </div>
 
@@ -43,7 +43,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-6 text-slate-400 font-bold text-sm">
               <li><button onClick={() => onNavigate('home')} className="hover:text-brand-green transition-colors">Como funciona</button></li>
               <li><button onClick={() => onNavigate('about')} className="hover:text-brand-green transition-colors">Sobre Nós</button></li>
-              <li><button onClick={() => onNavigate('jobs')} className="hover:text-brand-green transition-colors">Buscar Vagas</button></li>
+              <li><button className="hover:text-brand-green transition-colors">Parcerias</button></li>
               <li><button className="hover:text-brand-green transition-colors">API para RH</button></li>
             </ul>
           </div>

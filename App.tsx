@@ -9,16 +9,9 @@ import CanadaSection from './components/CanadaSection';
 import Stats from './components/Stats';
 import Footer from './components/Footer';
 import AboutPage from './components/AboutPage';
-import JobsPage from './components/JobsPage';
-import LoginPage from './components/LoginPage';
-import ForgotPasswordPage from './components/ForgotPasswordPage';
-import ResetPasswordPage from './components/ResetPasswordPage';
-import RegisterSelection from './components/RegisterSelection';
-import RegisterProfessional from './components/RegisterProfessional';
-import RegisterCompany from './components/RegisterCompany';
 import DashboardProfessional from './components/DashboardProfessional';
 import DashboardCompany from './components/DashboardCompany';
-import PostJobPage from './components/PostJobPage';
+import LeadFormPage from './components/LeadFormPage';
 import { supabase } from './services/supabase';
 
 const App: React.FC = () => {
@@ -38,15 +31,9 @@ const App: React.FC = () => {
       setSession(session);
       if (session) {
         fetchProfile(session.user.id);
-        // Se o evento for PASSWORD_RECOVERY, redireciona para reset-password
-        if (_event === 'PASSWORD_RECOVERY') {
-          setCurrentPage('reset-password');
-        }
       } else {
         setProfile(null);
-        if (currentPage !== 'reset-password' && currentPage !== 'forgot-password') {
-          setCurrentPage('home');
-        }
+        setCurrentPage('home');
       }
     });
 
@@ -62,7 +49,7 @@ const App: React.FC = () => {
     
     if (data) {
       setProfile(data);
-      if (currentPage === 'home' || currentPage === 'login') {
+      if (currentPage === 'home') {
         setCurrentPage(data.user_type === 'professional' ? 'dashboard-professional' : 'dashboard-company');
       }
     }
@@ -76,26 +63,12 @@ const App: React.FC = () => {
     switch (currentPage) {
       case 'about':
         return <AboutPage />;
-      case 'jobs':
-        return <JobsPage profile={profile} onNavigate={setCurrentPage} />;
-      case 'login':
-        return <LoginPage onNavigate={setCurrentPage} />;
-      case 'forgot-password':
-        return <ForgotPasswordPage onNavigate={setCurrentPage} />;
-      case 'reset-password':
-        return <ResetPasswordPage onNavigate={setCurrentPage} />;
-      case 'register':
-        return <RegisterSelection onNavigate={setCurrentPage} />;
-      case 'register-professional':
-        return <RegisterProfessional onNavigate={setCurrentPage} />;
-      case 'register-company':
-        return <RegisterCompany onNavigate={setCurrentPage} />;
       case 'dashboard-professional':
         return <DashboardProfessional onNavigate={setCurrentPage} profile={profile} />;
       case 'dashboard-company':
         return <DashboardCompany onNavigate={setCurrentPage} profile={profile} />;
-      case 'post-job':
-        return <PostJobPage onNavigate={setCurrentPage} profile={profile} />;
+      case 'lead':
+        return <LeadFormPage onNavigate={setCurrentPage} />;
       default:
         return (
           <>
@@ -110,24 +83,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setCurrentPage('home');
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-green selection:text-white">
-      <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
-      {session && (
-        <div className="fixed top-24 right-8 z-[60]">
-          <button 
-            onClick={handleLogout}
-            className="bg-white/80 backdrop-blur border border-slate-200 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-colors shadow-sm"
-          >
-            Sair da Conta
-          </button>
-        </div>
-      )}
+      <Navbar onNavigate={setCurrentPage} currentPage={currentPage} profile={profile} />
       <main>
         {renderContent()}
       </main>
