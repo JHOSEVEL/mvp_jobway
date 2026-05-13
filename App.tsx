@@ -12,6 +12,7 @@ import AboutPage from './components/AboutPage';
 import DashboardProfessional from './components/DashboardProfessional';
 import DashboardCompany from './components/DashboardCompany';
 import LeadFormPage from './components/LeadFormPage';
+import CompanyRegisterPage from './components/CompanyRegisterPage';
 import { supabase } from './services/supabase';
 
 const App: React.FC = () => {
@@ -69,10 +70,12 @@ const App: React.FC = () => {
         return <DashboardCompany onNavigate={setCurrentPage} profile={profile} />;
       case 'lead':
         return <LeadFormPage onNavigate={setCurrentPage} />;
+      case 'company-register':
+        return <CompanyRegisterPage onNavigate={setCurrentPage} />;
       default:
         return (
           <>
-            <Hero />
+            <Hero onNavigate={setCurrentPage} />
             <UserJourney />
             <CityGrid />
             <FeatureSection />

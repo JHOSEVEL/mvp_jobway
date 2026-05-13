@@ -1,7 +1,11 @@
 
 import React from 'react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onNavigate: (page: string) => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
   return (
     <section className="relative pt-40 pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -21,10 +25,18 @@ const Hero: React.FC = () => {
               A JOBWAY utiliza IA de ponta para conectar PMEs a profissionais locais com base em competências, cultura e proximidade.
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
-              <button className="px-10 py-5 bg-brand-green text-white rounded-2xl font-black text-lg hover:bg-brand-greenDark shadow-2xl shadow-brand-green/30 transition-all flex items-center justify-center gap-2 active:scale-95">
+              <button
+                type="button"
+                onClick={() => onNavigate('company-register')}
+                className="px-10 py-5 bg-brand-green text-white rounded-2xl font-black text-lg hover:bg-brand-greenDark shadow-2xl shadow-brand-green/30 transition-all flex items-center justify-center gap-2 active:scale-95"
+              >
                 Sou Empresa
               </button>
-              <button className="px-10 py-5 bg-white text-slate-900 border-2 border-slate-200 rounded-2xl font-black text-lg hover:border-brand-green hover:text-brand-green transition-all flex items-center justify-center active:scale-95">
+              <button
+                type="button"
+                onClick={() => onNavigate('lead')}
+                className="px-10 py-5 bg-white text-slate-900 border-2 border-slate-200 rounded-2xl font-black text-lg hover:border-brand-green hover:text-brand-green transition-all flex items-center justify-center active:scale-95"
+              >
                 Sou Profissional
               </button>
             </div>
