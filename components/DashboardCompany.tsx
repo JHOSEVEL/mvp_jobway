@@ -19,6 +19,7 @@ function DashboardCompany({ onNavigate, profile }: Props) {
       status: 'Talento',
       discipline: 'Estável',
       searchHint: 'Projeto desafiador com impacto real. Aberta a trabalho remoto.',
+      bio: 'Profissional com 8 anos de experiência em design de produtos digitais, desenvolvendo soluções mobile-first e liderando squads de design. Focada em pesquisa de usuário e experiências escaláveis.',
       tags: ['Figma', 'Design System', 'UX Research', 'Prototipação'],
       email: 'larissa@exemplo.com',
       phone: '+55 48 95678-1234',
@@ -34,6 +35,7 @@ function DashboardCompany({ onNavigate, profile }: Props) {
       status: 'Talento',
       discipline: 'Empático',
       searchHint: 'Busca posição estratégica em produto digital.',
+      bio: 'Product manager com histórico em growth e estratégia, conectando dados e experiência de usuário para acelerar resultados em equipes ágeis.',
       tags: ['Roadmap', 'Métricas', 'User Research', 'OKRs'],
       email: 'mateus@exemplo.com',
       phone: '+55 47 99999-9876',
@@ -49,6 +51,7 @@ function DashboardCompany({ onNavigate, profile }: Props) {
       status: 'Talento',
       discipline: 'Focado',
       searchHint: 'Disponível para times ágeis e squads remotos.',
+      bio: 'Engenheira front-end com domínio em React e TypeScript, entregando interfaces acessíveis e performáticas para produtos digitais de alta complexidade.',
       tags: ['React', 'TypeScript', 'Next.js', 'Acessibilidade'],
       email: 'bruna@exemplo.com',
       phone: '+55 47 98888-1122',
@@ -80,8 +83,8 @@ function DashboardCompany({ onNavigate, profile }: Props) {
   };
 
   return (
-    <div className="pt-32 pb-24 bg-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full h-auto pt-32 pb-24 bg-slate-50">
+      <div className="w-full max-w-full mx-0 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-black text-slate-900 mb-2">Olá, {companyName}!</h1>
@@ -202,7 +205,7 @@ function DashboardCompany({ onNavigate, profile }: Props) {
                 </h2>
                 <span className="text-sm text-slate-500">Talentos prontos para abordagem</span>
               </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6">
                 {professionalProfiles.map((profile) => (
                   <ProfessionalProfileCard key={profile.email} profile={profile} />
                 ))}
