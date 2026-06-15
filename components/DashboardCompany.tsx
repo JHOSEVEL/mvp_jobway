@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import ProfessionalProfileCard, { ProfessionalProfile } from './ProfessionalProfileCard';
 
 interface Props {
   onNavigate: (page: string) => void;
@@ -9,6 +10,54 @@ function DashboardCompany({ onNavigate, profile }: Props) {
   const companyName = profile?.full_name || 'Empresa Parceira';
   const companyCity = profile?.city || 'Florianópolis';
 
+  const professionalProfiles: ProfessionalProfile[] = [
+    {
+      name: 'Larissa Campos',
+      role: 'UX Designer & Produto | Mobile First',
+      location: 'Florianópolis, SC',
+      distanceKm: '2 km',
+      status: 'Talento',
+      discipline: 'Estável',
+      searchHint: 'Projeto desafiador com impacto real. Aberta a trabalho remoto.',
+      tags: ['Figma', 'Design System', 'UX Research', 'Prototipação'],
+      email: 'larissa@exemplo.com',
+      phone: '+55 48 95678-1234',
+      linkedin: 'linkedin.com/in/larissacampos',
+      score: '74%',
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80',
+    },
+    {
+      name: 'Mateus Oliveira',
+      role: 'Product Manager | Growth',
+      location: 'Joinville, SC',
+      distanceKm: '5 km',
+      status: 'Talento',
+      discipline: 'Empático',
+      searchHint: 'Busca posição estratégica em produto digital.',
+      tags: ['Roadmap', 'Métricas', 'User Research', 'OKRs'],
+      email: 'mateus@exemplo.com',
+      phone: '+55 47 99999-9876',
+      linkedin: 'linkedin.com/in/mateusoliveira',
+      score: '81%',
+      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80',
+    },
+    {
+      name: 'Bruna Almeida',
+      role: 'Front-End Engineer | React',
+      location: 'Blumenau, SC',
+      distanceKm: '8 km',
+      status: 'Talento',
+      discipline: 'Focado',
+      searchHint: 'Disponível para times ágeis e squads remotos.',
+      tags: ['React', 'TypeScript', 'Next.js', 'Acessibilidade'],
+      email: 'bruna@exemplo.com',
+      phone: '+55 47 98888-1122',
+      linkedin: 'linkedin.com/in/brunaalmeida',
+      score: '89%',
+      image: 'https://images.unsplash.com/photo-1502767089025-6572583495b4?auto=format&fit=crop&w=900&q=80',
+    },
+  ];
+
   // Mock data baseado no contexto da landing page
   const activeJobs = [
     { id: 1, title: 'Desenvolvedor Full Stack Sênior', applicants: 12, status: 'Ativa', posted: '3 dias atrás', matches: 3 },
@@ -17,9 +66,9 @@ function DashboardCompany({ onNavigate, profile }: Props) {
   ];
 
   const recentCandidates = [
-    { name: 'João Silva', job: 'Desenvolvedor Full Stack Sênior', match: 95, status: 'Entrevista agendada', distance: '2km' },
-    { name: 'Maria Santos', job: 'Designer de UX/UI', match: 88, status: 'Em análise', distance: '5km' },
-    { name: 'Pedro Costa', job: 'Desenvolvedor Full Stack Sênior', match: 92, status: 'Novo candidato', distance: '3km' },
+    { name: 'João Silva', job: 'Desenvolvedor Full Stack Sênior', match: 95, status: 'Entrevista agendada', distance: '2 km' },
+    { name: 'Maria Santos', job: 'Designer de UX/UI', match: 88, status: 'Em análise', distance: '5 km' },
+    { name: 'Pedro Costa', job: 'Desenvolvedor Full Stack Sênior', match: 92, status: 'Novo candidato', distance: '3 km' },
   ];
 
   const metrics = {
@@ -40,7 +89,7 @@ function DashboardCompany({ onNavigate, profile }: Props) {
         </div>
 
         {/* Métricas Rápidas */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 text-center">
             <div className="text-2xl font-black text-slate-900">{metrics.totalJobs}</div>
             <div className="text-sm text-slate-600 font-bold">Vagas Totais</div>
@@ -115,14 +164,15 @@ function DashboardCompany({ onNavigate, profile }: Props) {
               </h2>
               <div className="space-y-4">
                 {recentCandidates.map((candidate, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
+                  <div key={idx} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-slate-200 rounded-xl gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-brand-green text-white rounded-full flex items-center justify-center font-black text-lg">
                         {candidate.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
                         <h3 className="font-black text-slate-900">{candidate.name}</h3>
-                        <p className="text-slate-600 text-sm">{candidate.job} • {candidate.distance}</p>
+                        <p className="text-slate-600 text-sm">{candidate.job}</p>
+                        <p className="text-slate-500 text-xs mt-1">{candidate.distance} da empresa</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -139,6 +189,22 @@ function DashboardCompany({ onNavigate, profile }: Props) {
                       </span>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Perfis de Profissionais */}
+            <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-slate-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <span className="text-3xl">⭐</span>
+                  Perfis de Profissionais
+                </h2>
+                <span className="text-sm text-slate-500">Talentos prontos para abordagem</span>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {professionalProfiles.map((profile) => (
+                  <ProfessionalProfileCard key={profile.email} profile={profile} />
                 ))}
               </div>
             </div>
