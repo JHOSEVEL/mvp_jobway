@@ -3,34 +3,16 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 interface FormData {
   nome: string;
   email: string;
-  whatsapp: string;
-  cep: string;
-  cidade: string;
-  estado: string;
-  cargo: string;
-  experiencia: string;
-  habilidades: string;
-  softskills: string;
-  descricao: string;
-  ingles: string;
-  canada: boolean;
+  telefone: string;
+  bairro: string;
 }
 
 export default function Cadastro() {
   const [form, setForm] = useState<FormData>({
     nome: "",
     email: "",
-    whatsapp: "",
-    cep: "",
-    cidade: "",
-    estado: "",
-    cargo: "",
-    experiencia: "",
-    habilidades: "",
-    softskills: "",
-    descricao: "",
-    ingles: "",
-    canada: false,
+    telefone: "",
+    bairro: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -45,16 +27,14 @@ export default function Cadastro() {
     }
   }, [success]);
 
-  // Validações
+  // Validações simples para os campos de contato
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
 
-    // Nome - mínimo 2 caracteres
     if (!form.nome.trim() || form.nome.trim().length < 2) {
       newErrors.nome = "Nome deve ter pelo menos 2 caracteres";
     }
 
-    // Email - formato válido
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) {
       newErrors.email = "E-mail é obrigatório";
@@ -62,43 +42,15 @@ export default function Cadastro() {
       newErrors.email = "E-mail inválido";
     }
 
-    // WhatsApp - formato brasileiro
-    const whatsappRegex = /^\(\d{2}\)\s?\d{4,5}-\d{4}$|^\d{2}\s?\d{4,5}-\d{4}$|^\d{10,11}$/;
-    if (!form.whatsapp.trim()) {
-      newErrors.whatsapp = "WhatsApp é obrigatório";
-    } else if (!whatsappRegex.test(form.whatsapp.replace(/\s/g, ''))) {
-      newErrors.whatsapp = "Formato: (11) 99999-9999";
+    const telefoneRegex = /^\+?\d{10,13}$|^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+    if (!form.telefone.trim()) {
+      newErrors.telefone = "Telefone é obrigatório";
+    } else if (!telefoneRegex.test(form.telefone.replace(/\s|\(|\)|-/g, ''))) {
+      newErrors.telefone = "Telefone inválido";
     }
 
-    // CEP - formato válido
-    const cepRegex = /^\d{5}-?\d{3}$/;
-    if (!form.cep.trim()) {
-      newErrors.cep = "CEP é obrigatório";
-    } else if (!cepRegex.test(form.cep.replace(/\D/g, ''))) {
-      newErrors.cep = "CEP inválido";
-    }
-
-    // Cidade e Estado
-    if (!form.cidade.trim()) {
-      newErrors.cidade = "Cidade é obrigatória";
-    }
-    if (!form.estado.trim()) {
-      newErrors.estado = "Estado é obrigatório";
-    }
-
-    // Cargo
-    if (!form.cargo.trim()) {
-      newErrors.cargo = "Cargo é obrigatório";
-    }
-
-    // Experiência
-    if (!form.experiencia) {
-      newErrors.experiencia = "Selecione o nível de experiência";
-    }
-
-    // Inglês
-    if (!form.ingles) {
-      newErrors.ingles = "Selecione o nível de inglês";
+    if (!form.bairro.trim() || form.bairro.trim().length < 2) {
+      newErrors.bairro = "Bairro é obrigatório";
     }
 
     setErrors(newErrors);
@@ -129,85 +81,36 @@ export default function Cadastro() {
     clearError(name as keyof FormData);
   };
 
-  // Buscar CEP
-  const buscarCEP = async () => {
-    if (!form.cep) return;
-
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${form.cep}/json/`);
-      const data = await res.json();
-
-      if (!data.erro) {
-        setForm(prev => ({
-          ...prev,
-          cidade: data.localidade,
-          estado: data.uf,
-        }));
-      }
-    } catch (error) {
-      console.error("Erro ao buscar CEP");
-    }
-  };
-
-  // Submit
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Submit: valida e redireciona para WhatsApp com mensagem contendo os dados
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
 
     try {
-      // Preparar dados para envio
-      const formData = new FormData();
-      formData.append('nome', form.nome.trim());
-      formData.append('email', form.email.trim());
-      formData.append('whatsapp', form.whatsapp.trim());
-      formData.append('cep', form.cep.trim());
-      formData.append('cidade', form.cidade.trim());
-      formData.append('estado', form.estado.trim());
-      formData.append('cargo', form.cargo.trim());
-      formData.append('experiencia', form.experiencia);
-      formData.append('habilidades', form.habilidades.trim());
-      formData.append('softskills', form.softskills.trim());
-      formData.append('descricao', form.descricao.trim());
-      formData.append('ingles', form.ingles);
-      formData.append('canada', form.canada ? 'Sim' : 'Não');
-      formData.append('dataCadastro', new Date().toLocaleString('pt-BR'));
+      const nome = encodeURIComponent(form.nome.trim());
+      const email = encodeURIComponent(form.email.trim());
+      const telefone = encodeURIComponent(form.telefone.trim());
+      const bairro = encodeURIComponent(form.bairro.trim());
 
-      // Enviar para Google Sheets - com tratamento de CORS
-      const response = await fetch('https://script.google.com/macros/s/AKfycby4OjBZQ7KdaBZu0S8CLEyMIV5vW-LurOmwuLUDjM-ZIqDYsfcTrp-IILy581r_fOm7DA/exec', {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors'
-      });
+      const message = `Ol%C3%A1%2C%20meu%20nome%20%C3%A9%20${nome}%2C%20meu%20e-mail%20%C3%A9%20${email}%2C%20meu%20telefone%20%C3%A9%20${telefone}%2C%20bairro%20${bairro}.`;
 
-      // Com no-cors, response.ok não funciona. Vamos assumir sucesso
-      setSuccess(true);
-      setForm({
-        nome: "",
-        email: "",
-        whatsapp: "",
-        cep: "",
-        cidade: "",
-        estado: "",
-        cargo: "",
-        experiencia: "",
-        habilidades: "",
-        softskills: "",
-        descricao: "",
-        ingles: "",
-        canada: false,
-      });
+      // Número de destino fornecido: 85989500747 (BR -> country code 55)
+      const whatsappNumber = '5585989500747';
+      const waUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+
+      // Abrir em nova aba/janela
+      window.open(waUrl, '_blank');
+
+      // Limpar formulário
+      setForm({ nome: '', email: '', telefone: '', bairro: '' });
       setErrors({});
-      
-      // Log para verificação
-      console.log('Dados enviados com sucesso para Google Sheets');
-    } catch (error) {
-      console.error('Erro ao enviar:', error);
-      alert('Erro ao enviar formulário. Tente novamente.');
+      setSuccess(true);
+    } catch (err) {
+      console.error('Erro ao abrir WhatsApp:', err);
+      alert('Erro ao abrir WhatsApp. Verifique seu navegador.');
     } finally {
       setLoading(false);
     }
@@ -220,10 +123,10 @@ export default function Cadastro() {
         <div className="text-center mb-8">
           <div className="text-brand-greenDark uppercase font-bold tracking-[0.3em] text-[11px] mb-4">JOBWAY</div>
           <h2 className="text-3xl font-black text-slate-900 mb-4">
-            Cadastro de Perfil Profissional
+            Fale Conosco
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Complete seu perfil e tenha acesso às melhores oportunidades de emprego em Santa Catarina
+            Deixe seus dados de contato e entraremos em contato via WhatsApp.
           </p>
         </div>
 
@@ -256,99 +159,22 @@ export default function Cadastro() {
           </div>
 
           <div>
-            <input name="whatsapp" value={form.whatsapp} onChange={handleChange}
-              placeholder="WhatsApp (com DDD)" required
+            <input name="telefone" value={form.telefone} onChange={handleChange}
+              placeholder="Telefone/WhatsApp (com DDD)" required
               className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                errors.whatsapp ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
+                errors.telefone ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
               }`} />
-            {errors.whatsapp && <p className="text-red-600 text-sm mt-1 font-medium">{errors.whatsapp}</p>}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <input name="cep" value={form.cep} onChange={handleChange}
-                onBlur={buscarCEP}
-                placeholder="CEP" required
-                className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                  errors.cep ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
-                }`} />
-              {errors.cep && <p className="text-red-600 text-sm mt-1 font-medium">{errors.cep}</p>}
-            </div>
-
-            <div>
-              <input name="cidade" value={form.cidade} onChange={handleChange}
-                placeholder="Cidade" required
-                className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                  errors.cidade ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
-                }`} />
-              {errors.cidade && <p className="text-red-600 text-sm mt-1 font-medium">{errors.cidade}</p>}
-            </div>
-
-            <div>
-              <input name="estado" value={form.estado} onChange={handleChange}
-                placeholder="UF" required
-                className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                  errors.estado ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
-                }`} />
-              {errors.estado && <p className="text-red-600 text-sm mt-1 font-medium">{errors.estado}</p>}
-            </div>
+            {errors.telefone && <p className="text-red-600 text-sm mt-1 font-medium">{errors.telefone}</p>}
           </div>
 
           <div>
-            <input name="cargo" value={form.cargo} onChange={handleChange}
-              placeholder="Cargo/Profissão Principal" required
+            <input name="bairro" value={form.bairro} onChange={handleChange}
+              placeholder="Bairro" required
               className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                errors.cargo ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
+                errors.bairro ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
               }`} />
-            {errors.cargo && <p className="text-red-600 text-sm mt-1 font-medium">{errors.cargo}</p>}
+            {errors.bairro && <p className="text-red-600 text-sm mt-1 font-medium">{errors.bairro}</p>}
           </div>
-
-          <div>
-            <select name="experiencia" value={form.experiencia} onChange={handleChange}
-              required className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                errors.experiencia ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
-              }`}>
-              <option value="">Nível de Experiência</option>
-              <option value="Junior">Júnior</option>
-              <option value="Pleno">Pleno</option>
-              <option value="Senior">Sênior</option>
-            </select>
-            {errors.experiencia && <p className="text-red-600 text-sm mt-1 font-medium">{errors.experiencia}</p>}
-          </div>
-
-          <input name="habilidades" value={form.habilidades} onChange={handleChange}
-            placeholder="Habilidades Técnicas"
-            className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all" />
-
-          <input name="softskills" value={form.softskills} onChange={handleChange}
-            placeholder="Soft Skills"
-            className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all" />
-
-          <textarea name="descricao" value={form.descricao} onChange={handleChange}
-            rows={4}
-            placeholder="Conte sua história profissional..."
-            className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all resize-none" />
-
-          <div>
-            <select name="ingles" value={form.ingles} onChange={handleChange}
-              required className={`w-full p-4 rounded-2xl border bg-slate-50 text-slate-900 outline-none transition-all ${
-                errors.ingles ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-brand-green focus:ring-brand-green/20'
-              }`}>
-              <option value="">Nível de Inglês</option>
-              <option value="Basico">Básico</option>
-              <option value="Intermediario">Intermediário</option>
-              <option value="Avancado">Avançado</option>
-            </select>
-            {errors.ingles && <p className="text-red-600 text-sm mt-1 font-medium">{errors.ingles}</p>}
-          </div>
-
-          <label className="flex items-center space-x-3 cursor-pointer p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:border-brand-green transition-all">
-            <input type="checkbox" name="canada"
-              checked={form.canada}
-              onChange={handleChange}
-              className="w-5 h-5 accent-brand-green" />
-            <span className="text-slate-700 font-medium">Tenho interesse no mercado Canadense 🇨🇦</span>
-          </label>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button type="submit" disabled={loading}

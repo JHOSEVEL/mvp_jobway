@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
 
 interface CompanyFormData {
-  nomeEmpresa: string;
-  cnpj: string;
-  nomeContato: string;
+  nome: string;
   email: string;
-  whatsapp: string;
-  cep: string;
-  cidade: string;
-  estado: string;
-  segmento: string;
-  porte: string;
-  descricao: string;
-  site: string;
+  telefone: string;
+  bairro: string;
+  empresa: string;
 }
 
 interface CompanyRegisterPageProps {
@@ -23,18 +16,11 @@ const digitsOnly = (s: string) => s.replace(/\D/g, '');
 
 const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate }) => {
   const [form, setForm] = useState<CompanyFormData>({
-    nomeEmpresa: '',
-    cnpj: '',
-    nomeContato: '',
+    nome: '',
     email: '',
-    whatsapp: '',
-    cep: '',
-    cidade: '',
-    estado: '',
-    segmento: '',
-    porte: '',
-    descricao: '',
-    site: '',
+    telefone: '',
+    bairro: '',
+    empresa: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -51,18 +37,7 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof CompanyFormData, string>> = {};
 
-    if (!form.nomeEmpresa.trim() || form.nomeEmpresa.trim().length < 2) {
-      newErrors.nomeEmpresa = 'Informe o nome ou razão social da empresa';
-    }
-
-    const cnpjDigits = digitsOnly(form.cnpj);
-    if (cnpjDigits.length !== 14) {
-      newErrors.cnpj = 'CNPJ deve conter 14 dígitos';
-    }
-
-    if (!form.nomeContato.trim() || form.nomeContato.trim().length < 2) {
-      newErrors.nomeContato = 'Informe o nome do responsável';
-    }
+    if (!form.nome.trim() || form.nome.trim().length < 2) newErrors.nome = 'Nome deve ter pelo menos 2 caracteres';
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) {
@@ -71,36 +46,14 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
       newErrors.email = 'E-mail inválido';
     }
 
-    const whatsappRegex = /^\(\d{2}\)\s?\d{4,5}-\d{4}$|^\d{2}\s?\d{4,5}-\d{4}$|^\d{10,11}$/;
-    if (!form.whatsapp.trim()) {
-      newErrors.whatsapp = 'WhatsApp é obrigatório';
-    } else if (!whatsappRegex.test(form.whatsapp.replace(/\s/g, ''))) {
-      newErrors.whatsapp = 'Formato: (48) 99999-9999';
+    const telefoneRegex = /^\+?\d{10,13}$|^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+    if (!form.telefone.trim()) {
+      newErrors.telefone = 'Telefone é obrigatório';
+    } else if (!telefoneRegex.test(form.telefone.replace(/\s|\(|\)|-/g, ''))) {
+      newErrors.telefone = 'Telefone inválido';
     }
 
-    const cepRegex = /^\d{5}-?\d{3}$/;
-    if (!form.cep.trim()) {
-      newErrors.cep = 'CEP é obrigatório';
-    } else if (!cepRegex.test(digitsOnly(form.cep))) {
-      newErrors.cep = 'CEP inválido';
-    }
-
-    if (!form.cidade.trim()) newErrors.cidade = 'Cidade é obrigatória';
-    if (!form.estado.trim()) newErrors.estado = 'UF é obrigatória';
-    if (!form.segmento) newErrors.segmento = 'Selecione o segmento';
-    if (!form.porte) newErrors.porte = 'Selecione o porte';
-    if (!form.descricao.trim() || form.descricao.trim().length < 20) {
-      newErrors.descricao = 'Descreva suas necessidades (mín. 20 caracteres)';
-    }
-
-    if (form.site.trim()) {
-      try {
-        const u = form.site.trim().startsWith('http') ? form.site.trim() : `https://${form.site.trim()}`;
-        void new URL(u);
-      } catch {
-        newErrors.site = 'URL inválida';
-      }
-    }
+    if (!form.bairro.trim() || form.bairro.trim().length < 2) newErrors.bairro = 'Bairro é obrigatório';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -118,50 +71,33 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
     clearError(name as keyof CompanyFormData);
   };
 
-  const buscarCEP = async () => {
-    const cep = digitsOnly(form.cep);
-    if (cep.length !== 8) return;
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const data = await res.json();
-      if (!data.erro) {
-        setForm((prev) => ({
-          ...prev,
-          cidade: data.localidade,
-          estado: data.uf,
-        }));
-      }
-    } catch {
-      console.error('Erro ao buscar CEP');
-    }
-  };
+  // No CEP lookup needed for simplified contact form
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      // Cadastro B2B: integrar com backend ou Google Sheets quando houver endpoint dedicado
-      await new Promise((r) => setTimeout(r, 600));
-      setSuccess(true);
-      setForm({
-        nomeEmpresa: '',
-        cnpj: '',
-        nomeContato: '',
-        email: '',
-        whatsapp: '',
-        cep: '',
-        cidade: '',
-        estado: '',
-        segmento: '',
-        porte: '',
-        descricao: '',
-        site: '',
-      });
+      const nome = encodeURIComponent(form.nome.trim());
+      const email = encodeURIComponent(form.email.trim());
+      const telefone = encodeURIComponent(form.telefone.trim());
+      const bairro = encodeURIComponent(form.bairro.trim());
+      const empresa = encodeURIComponent(form.empresa.trim() || '[Nome da sua Empresa]');
+
+      const message = `Ol%C3%A1%2C%20tudo%20bem%3F%0A%0AMe%20chamo%20*${nome}*%2C%20sou%20da%20empresa%20*${empresa}*%20e%20estou%20entrando%20em%20contato%20pois%20temos%20uma%20vaga%20de%20emprego%20aberta%20em%20nossa%20organiza%C3%A7%C3%A3o.%0A%0AGostar%C3%ADamos%20muito%20de%20contar%20com%20a%20expertise%20de%20voc%C3%AAs%20para%20nos%20ajudar%20a%20buscar%20e%20selecionar%20os%20melhores%20talentos%20para%20essa%20oportunidade.%0A%0A*Nossos%20dados%20para%20in%C3%ADcio%20do%20atendimento*%3A%0A%0A-%20%F0%9F%93%A7%20*E-mail*%3A%20${email}%0A-%20%F0%9F%93%B1%20*Telefone*%3A%20${telefone}%0A-%20%F0%9F%8C%8D%20*Localiza%C3%A7%C3%A3o*%3A%20${bairro}%0A%0AComo%20funciona%20o%20processo%20de%20voc%C3%AAs%20para%20alinharmos%20o%20perfil%20da%20vaga%20e%20iniciarmos%20a%20divulga%C3%A7%C3%A3o%3F%20Ficamos%20no%20aguardo!%0A%0AAtenciosamente%2C%0A*${nome}*`;
+
+      const whatsappNumber = '5585989500747';
+      const waUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+
+      window.open(waUrl, '_blank');
+
+      setForm({ nome: '', email: '', telefone: '', bairro: '', empresa: '' });
       setErrors({});
-    } catch {
-      alert('Não foi possível enviar. Tente novamente.');
+      setSuccess(true);
+    } catch (err) {
+      console.error('Erro ao abrir WhatsApp:', err);
+      alert('Erro ao abrir WhatsApp. Verifique seu navegador.');
     } finally {
       setLoading(false);
     }
@@ -189,9 +125,9 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
 
         <div className="text-center mb-8">
           <div className="text-brand-greenDark uppercase font-bold tracking-[0.3em] text-[11px] mb-4">JOBWAY</div>
-          <h2 className="text-3xl font-black text-slate-900 mb-4">Cadastro de Empresa</h2>
+          <h2 className="text-3xl font-black text-slate-900 mb-4">Contato Profissional</h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Preencha os dados da sua empresa para receber contato da nossa equipe e acesso à plataforma de recrutamento.
+            Use este formulário para enviar uma mensagem profissional via WhatsApp.
           </p>
         </div>
 
@@ -208,40 +144,23 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
 
           <div>
             <input
-              name="nomeEmpresa"
-              value={form.nomeEmpresa}
+              name="nome"
+              value={form.nome}
               onChange={handleChange}
-              placeholder="Razão social ou nome fantasia"
-              className={inputClass('nomeEmpresa')}
+              placeholder="Nome completo"
+              className={inputClass('nome')}
             />
-            {errors.nomeEmpresa && (
-              <p className="text-red-600 text-sm mt-1 font-medium">{errors.nomeEmpresa}</p>
-            )}
+            {errors.nome && <p className="text-red-600 text-sm mt-1 font-medium">{errors.nome}</p>}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <input
-                name="cnpj"
-                value={form.cnpj}
-                onChange={handleChange}
-                placeholder="CNPJ (apenas números ou com máscara)"
-                className={inputClass('cnpj')}
-              />
-              {errors.cnpj && <p className="text-red-600 text-sm mt-1 font-medium">{errors.cnpj}</p>}
-            </div>
-            <div>
-              <input
-                name="nomeContato"
-                value={form.nomeContato}
-                onChange={handleChange}
-                placeholder="Nome do responsável"
-                className={inputClass('nomeContato')}
-              />
-              {errors.nomeContato && (
-                <p className="text-red-600 text-sm mt-1 font-medium">{errors.nomeContato}</p>
-              )}
-            </div>
+          <div>
+            <input
+              name="empresa"
+              value={form.empresa}
+              onChange={handleChange}
+              placeholder="Nome da sua empresa"
+              className={inputClass('empresa')}
+            />
           </div>
 
           <div>
@@ -250,7 +169,7 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="E-mail corporativo"
+              placeholder="E-mail"
               className={inputClass('email')}
             />
             {errors.email && <p className="text-red-600 text-sm mt-1 font-medium">{errors.email}</p>}
@@ -258,112 +177,24 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
 
           <div>
             <input
-              name="whatsapp"
-              value={form.whatsapp}
+              name="telefone"
+              value={form.telefone}
               onChange={handleChange}
-              placeholder="WhatsApp (com DDD)"
-              className={inputClass('whatsapp')}
+              placeholder="Telefone/WhatsApp (com DDD)"
+              className={inputClass('telefone')}
             />
-            {errors.whatsapp && (
-              <p className="text-red-600 text-sm mt-1 font-medium">{errors.whatsapp}</p>
-            )}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <input
-                name="cep"
-                value={form.cep}
-                onChange={handleChange}
-                onBlur={buscarCEP}
-                placeholder="CEP"
-                className={inputClass('cep')}
-              />
-              {errors.cep && <p className="text-red-600 text-sm mt-1 font-medium">{errors.cep}</p>}
-            </div>
-            <div>
-              <input
-                name="cidade"
-                value={form.cidade}
-                onChange={handleChange}
-                placeholder="Cidade"
-                className={inputClass('cidade')}
-              />
-              {errors.cidade && (
-                <p className="text-red-600 text-sm mt-1 font-medium">{errors.cidade}</p>
-              )}
-            </div>
-            <div>
-              <input
-                name="estado"
-                value={form.estado}
-                onChange={handleChange}
-                placeholder="UF"
-                maxLength={2}
-                className={inputClass('estado')}
-              />
-              {errors.estado && (
-                <p className="text-red-600 text-sm mt-1 font-medium">{errors.estado}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <select
-                name="segmento"
-                value={form.segmento}
-                onChange={handleChange}
-                className={inputClass('segmento')}
-              >
-                <option value="">Segmento da empresa</option>
-                <option value="industria">Indústria</option>
-                <option value="comercio">Comércio</option>
-                <option value="servicos">Serviços</option>
-                <option value="tecnologia">Tecnologia</option>
-                <option value="saude">Saúde</option>
-                <option value="educacao">Educação</option>
-                <option value="outro">Outro</option>
-              </select>
-              {errors.segmento && (
-                <p className="text-red-600 text-sm mt-1 font-medium">{errors.segmento}</p>
-              )}
-            </div>
-            <div>
-              <select name="porte" value={form.porte} onChange={handleChange} className={inputClass('porte')}>
-                <option value="">Porte (funcionários)</option>
-                <option value="1-10">1 a 10</option>
-                <option value="11-50">11 a 50</option>
-                <option value="51-200">51 a 200</option>
-                <option value="201+">Mais de 200</option>
-              </select>
-              {errors.porte && <p className="text-red-600 text-sm mt-1 font-medium">{errors.porte}</p>}
-            </div>
+            {errors.telefone && <p className="text-red-600 text-sm mt-1 font-medium">{errors.telefone}</p>}
           </div>
 
           <div>
             <input
-              name="site"
-              value={form.site}
+              name="bairro"
+              value={form.bairro}
               onChange={handleChange}
-              placeholder="Site da empresa (opcional)"
-              className={inputClass('site')}
+              placeholder="Bairro"
+              className={inputClass('bairro')}
             />
-            {errors.site && <p className="text-red-600 text-sm mt-1 font-medium">{errors.site}</p>}
-          </div>
-
-          <div>
-            <textarea
-              name="descricao"
-              value={form.descricao}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Quais vagas ou perfis você precisa contratar? Contexto ajuda nosso time a preparar a demo."
-              className={`${inputClass('descricao')} resize-none`}
-            />
-            {errors.descricao && (
-              <p className="text-red-600 text-sm mt-1 font-medium">{errors.descricao}</p>
-            )}
+            {errors.bairro && <p className="text-red-600 text-sm mt-1 font-medium">{errors.bairro}</p>}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -372,25 +203,12 @@ const CompanyRegisterPage: React.FC<CompanyRegisterPageProps> = ({ onNavigate })
               disabled={loading}
               className="flex-1 py-5 bg-brand-green text-white font-black rounded-2xl text-lg uppercase tracking-[0.1em] hover:bg-brand-greenDark transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
-              {loading ? 'Enviando...' : 'Enviar cadastro'}
+              {loading ? 'Enviando...' : 'Enviar via WhatsApp'}
             </button>
             <button
               type="button"
               onClick={() => {
-                setForm({
-                  nomeEmpresa: '',
-                  cnpj: '',
-                  nomeContato: '',
-                  email: '',
-                  whatsapp: '',
-                  cep: '',
-                  cidade: '',
-                  estado: '',
-                  segmento: '',
-                  porte: '',
-                  descricao: '',
-                  site: '',
-                });
+                setForm({ nome: '', email: '', telefone: '', bairro: '', empresa: '' });
                 setErrors({});
                 setSuccess(false);
               }}

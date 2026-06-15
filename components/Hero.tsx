@@ -19,7 +19,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
               Líder em Recrutamento em SC
             </div>
             <h1 className="text-5xl lg:text-7xl font-[900] text-slate-900 leading-[1.1] mb-8">
-              Contrate Talentos em SC em <span className="text-gradient">5 Dias ou até horas</span>
+              Contrate ou Seja contratado em SC Reduza o tempo de contratação em <span className="text-gradient">5 Dias ou até horas</span>
             </h1>
             <p className="text-xl text-slate-600 mb-10 max-w-lg leading-relaxed font-medium">
               A JOBWAY utiliza IA de ponta para conectar PMEs a profissionais locais com base em competências, cultura e proximidade.

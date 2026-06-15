@@ -43,12 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage, profile }) => 
             >
               Prévia do Dashboard
             </button>
-            <button 
-              onClick={() => onNavigate('lead')} 
-              className={`hover:text-brand-greenDark transition-colors ${currentPage === 'lead' ? 'text-brand-greenDark font-black' : ''}`}
-            >
-              Quero Demo
-            </button>
+            {/* "Quero Demo" removido do navbar conforme solicitado */}
           </div>
 
           <div className="flex items-center gap-5"></div>
