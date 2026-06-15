@@ -83,8 +83,8 @@ function DashboardCompany({ onNavigate, profile }: Props) {
   };
 
   return (
-    <div className="w-full h-auto pt-32 pb-24 bg-slate-50">
-      <div className="w-full max-w-full mx-0 px-4 sm:px-6 lg:px-8">
+    <div className="pt-32 pb-24 bg-slate-50 min-h-screen">
+      <div className="w-full max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-black text-slate-900 mb-2">Olá, {companyName}!</h1>
