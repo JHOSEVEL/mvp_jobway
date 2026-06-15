@@ -95,7 +95,7 @@ export default function Cadastro() {
       const telefone = encodeURIComponent(form.telefone.trim());
       const bairro = encodeURIComponent(form.bairro.trim());
 
-      const message = `Ol%C3%A1%2C%20meu%20nome%20%C3%A9%20${nome}%2C%20meu%20e-mail%20%C3%A9%20${email}%2C%20meu%20telefone%20%C3%A9%20${telefone}%2C%20bairro%20${bairro}.`;
+      const message = `Meu%20nome%20%C3%A9%20${nome}%20e%20estou%20entrando%20em%20contato%20para%20me%20colocar%20%C3%A0%20disposi%C3%A7%C3%A3o%20da%20%5BNome%20da%20Empresa%20de%20Recrutamento%5D%2C%20seja%20para%20novas%20oportunidades%20ou%20para%20compor%20seu%20banco%20de%20talentos.%0A%0AMeus%20canais%20de%20contato%20diretos%3A%0A%0A-%20%F0%9F%93%A7%20E-mail%3A%20${email}%0A-%20%F0%9F%93%B1%20Telefone%2FWhatsApp%3A%20${telefone}%0A-%20%F0%9F%8C%8D%20Localiza%C3%A7%C3%A3o%3A%20${bairro}`;
 
       // Número de destino fornecido: 85989500747 (BR -> country code 55)
       const whatsappNumber = '5585989500747';
@@ -186,17 +186,8 @@ export default function Cadastro() {
                 setForm({
                   nome: "",
                   email: "",
-                  whatsapp: "",
-                  cep: "",
-                  cidade: "",
-                  estado: "",
-                  cargo: "",
-                  experiencia: "",
-                  habilidades: "",
-                  softskills: "",
-                  descricao: "",
-                  ingles: "",
-                  canada: false,
+                  telefone: "",
+                  bairro: "",
                 });
                 setErrors({});
                 setSuccess(false);
